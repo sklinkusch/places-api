@@ -1,0 +1,17 @@
+# Additional sources
+node_modules
+.next
+
+# lock files
+package-lock.json
+yarn.lock
+
+# error files
+yarn.error
+
+# editor files
+.vscode
+
+# deployment files
+build
+.vercel
