@@ -1,0 +1,20 @@
+{
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@now/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.js",
+      "headers": {
+        "cache-control": "s-maxage=21536000,immutable"
+      }
+    }
+  ],
+  "github": {
+    "silent": true
+  }
+}
