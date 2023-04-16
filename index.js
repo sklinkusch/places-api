@@ -9,10 +9,8 @@ function getDropName(name, adminCode, country) {
   return `${name} (${country})`;
 }
 
-app.get("/", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Content-Type", "application/json");
-  const shortArray = allCities
+function getShortArray() {
+  return allCities
     .filter((city) => city.population >= 25000)
     .map((city) => {
       const { id, name, lat, lon, country, adminCode } = city;
@@ -30,12 +28,34 @@ app.get("/", (req, res) => {
     .sort((cityA, cityB) => {
       if (cityA.dropname.toLowerCase() < cityB.dropname.toLowerCase()) {
         return -1;
-      } else if (cityA.dropname.toLowerCase() > cityB.dropname.toLowerCase()) {
+      } else if (cityB.dropname.toLowerCase() < cityA.dropname.toLowerCase()) {
         return +1;
       } else {
         return 0;
       }
     });
+}
+
+app.use("*", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Content-Type", "application/json");
+  next();
+});
+
+app.get("/id", (req, res) => {
+  const shortArray = getShortArray();
+  const { id = "" } = req.query;
+  if (id.length > 0) {
+    const returnValue = shortArray.find((city) => city.key === id);
+    return res.status(200).json(returnValue);
+  }
+  return res
+    .status(500)
+    .json({ error: { message: "The id you provided does not exist." } });
+});
+
+app.get("/place", (req, res) => {
+  const shortArray = getShortArray();
   const { input = "" } = req.query;
   const returnArray = shortArray.filter((city) =>
     city.name.toLowerCase().includes(input.toLowerCase())
@@ -45,6 +65,12 @@ app.get("/", (req, res) => {
   } else {
     return res.status(200).json(shortArray);
   }
+});
+
+app.all("*", (req, res) => {
+  return res
+    .status(404)
+    .json({ error: { message: "The endpoint does not exist" } });
 });
 
 app.listen(port, () => {
